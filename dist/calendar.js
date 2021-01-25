@@ -192,7 +192,7 @@
               var isDay = mode === 'day';
               var isHour = mode === 'hour';
               var isMinute = mode === 'minute';
-              var isTimeOnly = settings.type === 'time';
+              var isTimeOnly = settings.type.value === 'time';
 
               var multiMonth = Math.max(settings.multiMonth, 1);
               var monthOffset = !isDay ? 0 : module.get.monthOffset();
@@ -462,7 +462,7 @@
                   var hour = focusDate.getHours() + (mode === 'hour' ? increment : 0);
                   var minute = focusDate.getMinutes() + (mode === 'minute' ? increment : 0);
                   var newFocusDate = new Date(year, month, day, hour, minute);
-                  if (settings.type === 'time') {
+                  if (settings.type.value === 'time') {
                     newFocusDate = module.helper.mergeDateTime(focusDate, newFocusDate);
                   }
                   if (module.helper.isDateInRange(newFocusDate, mode)) {
@@ -533,24 +533,24 @@
               if ($.inArray(mode, validModes) >= 0) {
                 return mode;
               }
-              return settings.type === 'time' ? 'hour' :
-                settings.type === 'month' ? 'month' :
-                  settings.type === 'year' ? 'year' : 'day';
+              return settings.type.value === 'time' ? 'hour' :
+                settings.type.value === 'month' ? 'month' :
+                  settings.type.value === 'year' ? 'year' : 'day';
             },
             validModes: function () {
               var validModes = [];
-              if (settings.type !== 'time') {
-                if (!settings.disableYear || settings.type === 'year') {
+              if (settings.type.value !== 'time') {
+                if (!settings.disableYear || settings.type.value === 'year') {
                   validModes.push('year');
                 }
-                if (!(settings.disableMonth || settings.type === 'year') || settings.type === 'month') {
+                if (!(settings.disableMonth || settings.type.value === 'year') || settings.type.value === 'month') {
                   validModes.push('month');
                 }
-                if (settings.type.indexOf('date') >= 0) {
+                if (settings.type.value.indexOf('date') >= 0) {
                   validModes.push('day');
                 }
               }
-              if (settings.type.indexOf('time') >= 0) {
+              if (settings.type.value.indexOf('time') >= 0) {
                 validModes.push('hour');
                 if (!settings.disableMinute) {
                   validModes.push('minute');
@@ -588,7 +588,7 @@
 
               var mode = module.get.mode();
               var text = formatter.datetime(date, settings);
-              if (fireChange && settings.onChange.call(element, date, text, mode) === false) {
+              if (fireChange && settings.onChange.value.call(element, date, text, mode) === false) {
                 return false;
               }
 
@@ -673,9 +673,9 @@
             var mode = module.get.mode();
             var complete = forceSet || mode === 'minute' ||
               (settings.disableMinute && mode === 'hour') ||
-              (settings.type === 'date' && mode === 'day') ||
-              (settings.type === 'month' && mode === 'month') ||
-              (settings.type === 'year' && mode === 'year');
+              (settings.type.value === 'date' && mode === 'day') ||
+              (settings.type.value === 'month' && mode === 'month') ||
+              (settings.type.value === 'year' && mode === 'year');
             if (complete) {
               var canceled = module.set.date(date) === false;
               if (!canceled && settings.closable) {
@@ -742,7 +742,7 @@
             },
             dateDiff: function (date1, date2, mode) {
               mode = mode || 'day';
-              var isTimeOnly = settings.type === 'time';
+              var isTimeOnly = settings.type.value === 'time';
               var isYear = mode === 'year';
               var isYearOrMonth = isYear || mode === 'month';
               var isMinute = mode === 'minute';
@@ -783,7 +783,7 @@
                 maxDate = settings.maxDate;
               }
               minDate = minDate && new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate(), minDate.getHours(), 5 * Math.ceil(minDate.getMinutes() / 5));
-              var isTimeOnly = settings.type === 'time';
+              var isTimeOnly = settings.type.value === 'time';
               return !date ? date :
                 (minDate && module.helper.dateDiff(date, minDate, 'minute') > 0) ?
                   (isTimeOnly ? module.helper.mergeDateTime(date, minDate) : minDate) :
@@ -1066,9 +1066,9 @@
         if (!date) {
           return '';
         }
-        var day = settings.type === 'time' ? '' : settings.formatter.date(date, settings);
-        var time = settings.type.indexOf('time') < 0 ? '' : settings.formatter.time(date, settings, false);
-        var separator = settings.type === 'datetime' ? ' ' : '';
+        var day = settings.type.value === 'time' ? '' : settings.formatter.date(date, settings);
+        var time = settings.type.value.indexOf('time') < 0 ? '' : settings.formatter.time(date, settings, false);
+        var separator = settings.type.value === 'datetime' ? ' ' : '';
         return day + separator + time;
       },
       date: function (date, settings) {
@@ -1078,8 +1078,8 @@
         var day = date.getDate();
         var month = settings.text.months[date.getMonth()];
         var year = date.getFullYear();
-        return settings.type === 'year' ? year :
-          settings.type === 'month' ? month + ' ' + year :
+        return settings.type.value === 'year' ? year :
+          settings.type.value === 'month' ? month + ' ' + year :
           (settings.monthFirst ? month + ' ' + day : day + ' ' + month) + ', ' + year;
       },
       time: function (date, settings, forCalendar) {
@@ -1096,7 +1096,7 @@
         return hour + ':' + (minute < 10 ? '0' : '') + minute + ampm;
       },
       today: function (settings) {
-        return settings.type === 'date' ? settings.text.today : settings.text.now;
+        return settings.type.value === 'date' ? settings.text.today : settings.text.now;
       },
       cell: function (cell, date, cellOptions) {
       }
@@ -1116,8 +1116,8 @@
         var minute = -1, hour = -1, day = -1, month = -1, year = -1;
         var isAm = undefined;
 
-        var isTimeOnly = settings.type === 'time';
-        var isDateOnly = settings.type.indexOf('time') < 0;
+        var isTimeOnly = settings.type.value === 'time';
+        var isDateOnly = settings.type.value.indexOf('time') < 0;
 
         var words = text.split(settings.regExp.dateWords);
         var numbers = text.split(settings.regExp.dateNumbers);
